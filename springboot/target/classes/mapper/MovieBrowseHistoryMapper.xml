@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.springboot.mapper.MovieBrowseHistoryMapper">
+    
+    <select id="selectHistoryPageWithUserAndMovie" resultType="org.example.springboot.entity.MovieBrowseHistory">
+        SELECT h.*, u.username, m.title as movie_title, m.cover_image
+        FROM movie_browse_history h
+        LEFT JOIN user u ON h.user_id = u.id
+        LEFT JOIN movie m ON h.movie_id = m.id
+        <where>
+            <if test="userId != null">
+                AND h.user_id = #{userId}
+            </if>
+            <if test="movieId != null">
+                AND h.movie_id = #{movieId}
+            </if>
+            <if test="username != null and username != ''">
+                AND u.username LIKE CONCAT('%', #{username}, '%')
+            </if>
+            <if test="movieTitle != null and movieTitle != ''">
+                AND m.title LIKE CONCAT('%', #{movieTitle}, '%')
+            </if>
+        </where>
+        ORDER BY h.browse_time DESC
+    </select>
+    
+</mapper> 

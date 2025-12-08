@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.springboot.mapper.SeatInfoMapper">
+    
+    <select id="selectSeatPage" resultType="org.example.springboot.entity.SeatInfo">
+        SELECT s.*, h.name as hall_name, c.name as cinema_name
+        FROM seat_info s
+        LEFT JOIN cinema_hall h ON s.hall_id = h.id
+        LEFT JOIN cinema c ON h.cinema_id = c.id
+        <where>
+            <if test="hallId != null">
+                AND s.hall_id = #{hallId}
+            </if>
+            <if test="status != null">
+                AND s.status = #{status}
+            </if>
+        </where>
+        ORDER BY s.row_num ASC, s.column_num ASC
+    </select>
+    
+    <insert id="insertBatch">
+        INSERT INTO seat_info (hall_id, row_num, column_num, status, create_time)
+        VALUES
+        <foreach collection="seats" item="seat" separator=",">
+            (#{seat.hallId}, #{seat.rowNum}, #{seat.columnNum}, 
+            #{seat.status}, #{seat.createTime})
+        </foreach>
+    </insert>
+    
+</mapper> 

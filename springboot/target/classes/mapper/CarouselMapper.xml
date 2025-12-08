@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.springboot.mapper.CarouselMapper">
+    
+    <select id="selectCarouselPageWithMovie" resultType="org.example.springboot.entity.Carousel">
+        SELECT c.*, m.title as movie_title
+        FROM carousel c
+        LEFT JOIN movie m ON c.movie_id = m.id
+        <where>
+            <if test="title != null and title != ''">
+                AND c.title LIKE CONCAT('%', #{title}, '%')
+            </if>
+            <if test="status != null">
+                AND c.status = #{status}
+            </if>
+        </where>
+        ORDER BY c.sort ASC, c.create_time DESC
+    </select>
+    
+</mapper> 

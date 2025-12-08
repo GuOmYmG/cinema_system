@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.springboot.mapper.MovieScheduleMapper">
+    
+    <select id="selectSchedulePageWithDetails" resultType="org.example.springboot.entity.MovieSchedule">
+        SELECT 
+            s.*,
+            m.title as movieTitle,
+            c.name as cinemaName,
+            h.name as hallName
+        FROM movie_schedule s
+        LEFT JOIN movie m ON s.movie_id = m.id
+        LEFT JOIN cinema c ON s.cinema_id = c.id
+        LEFT JOIN cinema_hall h ON s.hall_id = h.id
+        <where>
+            AND m.status = 1
+            <if test="movieId != null">
+                AND s.movie_id = #{movieId}
+            </if>
+            <if test="cinemaId != null">
+                AND s.cinema_id = #{cinemaId}
+            </if>
+            <if test="hallId != null">
+                AND s.hall_id = #{hallId}
+            </if>
+            <if test="startTime != null">
+                AND s.start_time >= #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND s.end_time &lt;= #{endTime}
+            </if>
+            <if test="status != null">
+                AND s.status = #{status}
+            </if>
+        </where>
+        ORDER BY s.start_time ASC
+    </select>
+    
+    <select id="checkHallScheduleConflict" resultType="org.example.springboot.entity.MovieSchedule">
+        SELECT *
+        FROM movie_schedule
+        WHERE hall_id = #{hallId}
+        AND status = 1
+        AND (
+            (start_time BETWEEN #{startTime} AND #{endTime})
+            OR (end_time BETWEEN #{startTime} AND #{endTime})
+            OR (start_time &lt;= #{startTime} AND end_time >= #{endTime})
+        )
+        <if test="excludeId != null">
+            AND id != #{excludeId}
+        </if>
+    </select>
+    
+    <select id="selectNotExpiredSchedules" resultType="org.example.springboot.entity.MovieSchedule">
+        SELECT 
+            s.*,
+            m.title as movieTitle,
+            c.name as cinemaName,
+            h.name as hallName
+        FROM movie_schedule s
+        LEFT JOIN movie m ON s.movie_id = m.id
+        LEFT JOIN cinema c ON s.cinema_id = c.id
+        LEFT JOIN cinema_hall h ON s.hall_id = h.id
+        <where>
+            AND m.status = 1
+            AND s.start_time >= #{currentTime}
+            <if test="movieId != null">
+                AND s.movie_id = #{movieId}
+            </if>
+            <if test="cinemaId != null">
+                AND s.cinema_id = #{cinemaId}
+            </if>
+            <if test="hallId != null">
+                AND s.hall_id = #{hallId}
+            </if>
+            <if test="status != null">
+                AND s.status = #{status}
+            </if>
+        </where>
+        ORDER BY s.start_time ASC
+    </select>
+    
+    <delete id="deleteByIds">
+        DELETE FROM movie_schedule
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper> 

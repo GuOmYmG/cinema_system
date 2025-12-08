@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.springboot.mapper.ScheduleSeatMapper">
+    
+    <select id="selectScheduleSeatsWithDetails" resultType="org.example.springboot.entity.ScheduleSeat">
+        SELECT ss.*, si.row_num, si.column_num
+        FROM schedule_seat ss
+        LEFT JOIN seat_info si ON ss.seat_id = si.id
+        WHERE ss.schedule_id = #{scheduleId}
+        ORDER BY si.row_num ASC, si.column_num ASC
+    </select>
+    
+    <insert id="insertBatch">
+        INSERT INTO schedule_seat (schedule_id, seat_id, status, create_time, update_time)
+        VALUES
+        <foreach collection="seats" item="seat" separator=",">
+            (#{seat.scheduleId}, #{seat.seatId}, #{seat.status}, 
+             #{seat.createTime}, #{seat.updateTime})
+        </foreach>
+    </insert>
+    
+    <select id="selectScheduleSeatPage" resultType="org.example.springboot.entity.ScheduleSeat">
+        SELECT ss.*, si.row_num, si.column_num
+        FROM schedule_seat ss
+        LEFT JOIN seat_info si ON ss.seat_id = si.id
+        <where>
+            <if test="scheduleId != null">
+                AND ss.schedule_id = #{scheduleId}
+            </if>
+            <if test="status != null">
+                AND ss.status = #{status}
+            </if>
+        </where>
+        ORDER BY si.row_num ASC, si.column_num ASC
+    </select>
+    
+</mapper> 

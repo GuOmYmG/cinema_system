@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.springboot.mapper.OrderMapper">
+    
+    <select id="selectOrderPageWithDetails" resultType="org.example.springboot.entity.Order">
+        SELECT o.*, 
+               u.username,
+               m.title as movie_title,
+               c.name as cinema_name,
+               h.name as hall_name,
+               m.cover_image as cover_image,
+               s.start_time
+        FROM `order` o
+        LEFT JOIN user u ON o.user_id = u.id
+        LEFT JOIN movie_schedule s ON o.schedule_id = s.id
+        LEFT JOIN movie m ON s.movie_id = m.id
+
+        LEFT JOIN cinema_hall h ON s.hall_id = h.id
+        LEFT JOIN cinema c ON h.cinema_id = c.id
+        <where>
+            <if test="orderNo != null and orderNo != ''">
+                AND o.order_no = #{orderNo}
+            </if>
+            <if test="userId != null">
+                AND o.user_id = #{userId}
+            </if>
+            <if test="status != null">
+                AND o.status = #{status}
+            </if>
+            <if test="scheduleId != null">
+                AND o.schedule_id = #{scheduleId}
+            </if>
+            <if test="username != null and username != ''">
+                AND u.username LIKE CONCAT('%', #{username}, '%')
+            </if>
+            <if test="movieTitle != null and movieTitle != ''">
+                AND m.title LIKE CONCAT('%', #{movieTitle}, '%')
+            </if>
+            <if test="cinemaId != null">
+                AND c.id = #{cinemaId}
+            </if>
+            <if test="hallId != null">
+                AND h.id = #{hallId}
+            </if>
+        </where>
+        ORDER BY o.create_time DESC
+    </select>
+    
+</mapper> 

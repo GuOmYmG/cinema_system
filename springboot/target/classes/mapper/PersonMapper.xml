@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.springboot.mapper.MovieMapper">
+
+    <select id="selectMoviesByPersonId" resultType="org.example.springboot.dto.PersonMovieDTO">
+        SELECT
+            m.movie_id as movieId,
+            m.title as movieTitle,
+            m.release_date as releaseDate,
+            mpr.role_name as role,
+            m.poster_url as posterUrl
+        FROM movie m
+                 INNER JOIN movie_person_role mpr ON m.movie_id = mpr.movie_id
+        WHERE mpr.person_id = #{personId}
+        ORDER BY m.release_date DESC
+    </select>
+
+    <select id="selectPersonsByMovieId" resultType="org.example.springboot.dto.MoviePersonDTO">
+        SELECT
+            p.pid as personId,
+            p.pname as personName,
+            p.birthday as birthday,
+            mpr.role_name as role,
+            p.person_image as personImage
+        FROM person p
+                 INNER JOIN movie_person_role mpr ON p.pid = mpr.person_id
+        WHERE mpr.movie_id = #{movieId}
+        ORDER BY
+            CASE
+                WHEN mpr.role_name = '导演' THEN 1
+                WHEN mpr.role_name = '主演' THEN 2
+                ELSE 3
+                END,
+            p.pname
+    </select>
+
+</mapper>
